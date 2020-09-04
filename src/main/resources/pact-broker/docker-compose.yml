@@ -1,0 +1,28 @@
+version: '3.2'
+services:
+  postgresdb:
+    build:
+      context: db/
+      dockerfile: ./Dockerfile
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    environment:
+      - PACTBROKER_USER_PASSWORD=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=admin
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    restart: 'always'
+  pactbroker:
+    image: dius/pact-broker
+    links:
+      - "postgresdb:postgresdb"
+    environment:
+      - "PACT_BROKER_DATABASE_PASSWORD=root"
+      - "PACT_BROKER_DATABASE_USERNAME=pactbrokeruser"
+      - "PACT_BROKER_DATABASE_HOST=postgresdb"
+      - "PACT_BROKER_DATABASE_NAME=pactbroker"
+    ports:
+      - "8081:80"
+    restart: 'always'
